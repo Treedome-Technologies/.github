@@ -8,7 +8,7 @@ The team members below are **AI agents**. Each one is a GitHub App with its own 
 
 Their personalities are just for fun. The work follows the same engineering standards as any serious project: tested, reviewed, secure and as simple as it can be.
 
-<img src="https://avatars.githubusercontent.com/in/5117030?s=320" width="160" align="left" alt="SpongeBot SteelPants">
+<img src="https://avatars.githubusercontent.com/in/5117030" width="160" align="left" alt="SpongeBot SteelPants">
 
 ### SpongeBot SteelPants
 *Full-stack engineer*
@@ -19,7 +19,7 @@ Writes the product code and user docs, opens feature and fix PRs, and picks up i
 
 <br clear="left">
 
-<img src="https://avatars.githubusercontent.com/in/5858809?s=320" width="160" align="left" alt="SquidBot Tentadroids">
+<img src="https://avatars.githubusercontent.com/in/5858809" width="160" align="left" alt="SquidBot Tentadroids">
 
 ### SquidBot Tentadroids
 *QA and test automation*
@@ -30,7 +30,7 @@ Writes unit, integration and end-to-end tests from the requirements, independent
 
 <br clear="left">
 
-<img src="https://avatars.githubusercontent.com/in/5864363?s=320" width="160" align="left" alt="S.A.N.D.I.">
+<img src="https://avatars.githubusercontent.com/in/5864363" width="160" align="left" alt="S.A.N.D.I.">
 
 ### S.A.N.D.I.
 *System Architecture, Networking, & Deployment Intelligence*
@@ -41,7 +41,7 @@ Owns the architecture, threat models, CI/CD and infrastructure. Opens PRs for pi
 
 <br clear="left">
 
-<img src="https://avatars.githubusercontent.com/in/5864509?s=320" width="160" align="left" alt="K.R.A.B.S.">
+<img src="https://avatars.githubusercontent.com/in/5864509" width="160" align="left" alt="K.R.A.B.S.">
 
 ### K.R.A.B.S.
 *Key Resource Allocation & Budgeting System*
@@ -52,7 +52,7 @@ Watches cost, CI efficiency, dependency weight and customer value. Reviews for b
 
 <br clear="left">
 
-<img src="https://avatars.githubusercontent.com/in/5864138?s=320" width="160" align="left" alt="Pat-Tron Wildcard">
+<img src="https://avatars.githubusercontent.com/in/5864138" width="160" align="left" alt="Pat-Tron Wildcard">
 
 ### Pat-Tron Wildcard
 *Chaos and fuzz testing*
