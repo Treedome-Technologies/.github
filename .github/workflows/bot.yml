@@ -100,16 +100,6 @@ jobs:
             issue)
               [[ -n "$TITLE" ]] || fail "issue needs a title" ;;
           esac
-          # Name prefix of the bot's secret <PREFIX>_PRIVATE_KEY and variable <PREFIX>_CLIENT_ID.
-          case "$BOT" in
-            spongebot-steelpants) prefix=SPONGEBOT_STEELPANTS ;;
-            squidbot-tentadroids) prefix=SQUIDBOT_TENTADROIDS ;;
-            s-a-n-d-i)            prefix=SANDI ;;
-            k-r-a-b-s)            prefix=KRABS ;;
-            pat-tron-wildcard)    prefix=PATTRON_WILDCARD ;;
-            *) fail "unknown bot" ;;
-          esac
-          echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
 
       # Two mint steps so each token carries only the permissions its action needs.
       - name: Mint token (pull requests)
@@ -117,8 +107,20 @@ jobs:
         if: inputs.action != 'issue'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          client-id: ${{ vars[format('{0}_CLIENT_ID', steps.check.outputs.prefix)] }}
-          private-key: ${{ secrets[format('{0}_PRIVATE_KEY', steps.check.outputs.prefix)] }}
+          # Secrets are named statically: a computed name (secrets[...]) makes GitHub
+          # pass every secret the repo can see to the runner.
+          client-id: >-
+            ${{ inputs.bot == 'spongebot-steelpants' && vars.SPONGEBOT_STEELPANTS_CLIENT_ID
+            || inputs.bot == 'squidbot-tentadroids' && vars.SQUIDBOT_TENTADROIDS_CLIENT_ID
+            || inputs.bot == 's-a-n-d-i' && vars.SANDI_CLIENT_ID
+            || inputs.bot == 'k-r-a-b-s' && vars.KRABS_CLIENT_ID
+            || inputs.bot == 'pat-tron-wildcard' && vars.PATTRON_WILDCARD_CLIENT_ID || '' }}
+          private-key: >-
+            ${{ inputs.bot == 'spongebot-steelpants' && secrets.SPONGEBOT_STEELPANTS_PRIVATE_KEY
+            || inputs.bot == 'squidbot-tentadroids' && secrets.SQUIDBOT_TENTADROIDS_PRIVATE_KEY
+            || inputs.bot == 's-a-n-d-i' && secrets.SANDI_PRIVATE_KEY
+            || inputs.bot == 'k-r-a-b-s' && secrets.KRABS_PRIVATE_KEY
+            || inputs.bot == 'pat-tron-wildcard' && secrets.PATTRON_WILDCARD_PRIVATE_KEY || '' }}
           owner: Treedome-Technologies
           repositories: ${{ inputs.repo }}
           permission-pull-requests: write
@@ -129,8 +131,20 @@ jobs:
         if: inputs.action == 'issue'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          client-id: ${{ vars[format('{0}_CLIENT_ID', steps.check.outputs.prefix)] }}
-          private-key: ${{ secrets[format('{0}_PRIVATE_KEY', steps.check.outputs.prefix)] }}
+          # Secrets are named statically: a computed name (secrets[...]) makes GitHub
+          # pass every secret the repo can see to the runner.
+          client-id: >-
+            ${{ inputs.bot == 'spongebot-steelpants' && vars.SPONGEBOT_STEELPANTS_CLIENT_ID
+            || inputs.bot == 'squidbot-tentadroids' && vars.SQUIDBOT_TENTADROIDS_CLIENT_ID
+            || inputs.bot == 's-a-n-d-i' && vars.SANDI_CLIENT_ID
+            || inputs.bot == 'k-r-a-b-s' && vars.KRABS_CLIENT_ID
+            || inputs.bot == 'pat-tron-wildcard' && vars.PATTRON_WILDCARD_CLIENT_ID || '' }}
+          private-key: >-
+            ${{ inputs.bot == 'spongebot-steelpants' && secrets.SPONGEBOT_STEELPANTS_PRIVATE_KEY
+            || inputs.bot == 'squidbot-tentadroids' && secrets.SQUIDBOT_TENTADROIDS_PRIVATE_KEY
+            || inputs.bot == 's-a-n-d-i' && secrets.SANDI_PRIVATE_KEY
+            || inputs.bot == 'k-r-a-b-s' && secrets.KRABS_PRIVATE_KEY
+            || inputs.bot == 'pat-tron-wildcard' && secrets.PATTRON_WILDCARD_PRIVATE_KEY || '' }}
           owner: Treedome-Technologies
           repositories: ${{ inputs.repo }}
           permission-issues: write

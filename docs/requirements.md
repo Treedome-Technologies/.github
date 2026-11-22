@@ -52,6 +52,7 @@ Every subsection below is always present. One with nothing to require says "None
 | REQ-025 | A bot-actions token SHALL be limited to the target repository and to the permissions its action needs. | |
 | REQ-026 | Bot-actions reviews SHALL always use the COMMENT event. | No approvals or change requests |
 | REQ-027 | Bot-actions inputs SHALL reach shell steps only through environment variables, never through expression interpolation. | Script injection |
+| REQ-029 | Workflows SHALL reference secrets by fixed names, never by computed names. | A computed name passes every secret to the runner |
 
 ### 3.2 Privacy
 None. Reports restate public CI data and file names; nothing is stored or sent elsewhere.
