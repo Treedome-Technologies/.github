@@ -1,5 +1,6 @@
-# Dependabot: keep the pinned reusable workflow current; wait 7 days after a
-# release to skip potential short-lived malicious versions.
+# Dependabot: keep the SHA-pinned token action current (this repo is where
+# Treedome's pins live); wait 7 days after a release to skip potential
+# short-lived malicious versions.
 version: 2
 updates:
   - package-ecosystem: github-actions

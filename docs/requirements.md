@@ -5,9 +5,9 @@ Keywords: **SHALL** (mandatory), **SHALL NOT** (prohibited), **SHOULD** / **SHOU
 Each row holds one requirement with one keyword, so it can be tested on its own. IDs are permanent: never reuse or renumber them, and mark a dropped requirement "Removed" instead of deleting its row.
 
 ## 1. Scope
-- **Purpose:** organization-level files for Treedome Technologies: the "Meet the team" profile, and a shared workflow that posts the bots' scripted reports on pull requests.
-- **Users:** visitors to the organization page; contributors whose pull requests get reports; the organization owner, who maintains both.
-- **Out of scope:** anything driven by AI. AI reviews are triggered only by the organization owner, from `bot-actions`.
+- **Purpose:** organization-level files and bot workflows for Treedome Technologies: the "Meet the team" profile, the owner-run bot actions, and a shared workflow that posts the bots' scripted reports on pull requests.
+- **Users:** visitors to the organization page; contributors whose pull requests get reports; the organization owner, who runs the bot actions and maintains everything here.
+- **Out of scope:** running AI. Bot actions post text the owner's own session wrote; nothing here runs AI.
 
 ## 2. Functional requirements
 
@@ -26,6 +26,14 @@ Each row holds one requirement with one keyword, so it can be tested on its own.
 | REQ-008 | The workflow SHALL skip runs triggered by Dependabot. | Its runs get no Actions secrets |
 | REQ-009 | The workflow SHALL post nothing when no open pull request matches the run's commit. | |
 
+### 2.2 Bot actions
+*As the organization owner, I want a bot to act on a repo under its own name, so its work is credited to it.*
+
+| ID | Requirement | Notes |
+|---|---|---|
+| REQ-021 | A bot-actions run SHALL create the requested pull request, review, comment, reply or issue under the chosen bot's name. | |
+| REQ-022 | A bot-actions run's summary SHALL show the URL of what it created. | |
+
 ## 3. Non-functional requirements
 Every subsection below is always present. One with nothing to require says "None." and why.
 
@@ -39,6 +47,12 @@ Every subsection below is always present. One with nothing to require says "None
 | REQ-014 | The workflow's own `GITHUB_TOKEN` SHALL have read-only access to Actions and pull requests only. | |
 | REQ-015 | The workflow SHALL NOT run AI or use any AI credential. | |
 | REQ-016 | Third-party actions SHALL be pinned to a full commit SHA. | |
+| REQ-023 | A bot-actions run SHALL fail before minting any token unless both its actor and its triggering actor are the organization owner. | |
+| REQ-024 | A bot-actions run SHALL fail before minting any token if the target repo name is malformed, or if the inputs its action needs are missing or not numeric where a number is required. | |
+| REQ-025 | A bot-actions token SHALL be limited to the target repository and to the permissions its action needs. | |
+| REQ-026 | Bot-actions reviews SHALL always use the COMMENT event. | No approvals or change requests |
+| REQ-027 | Bot-actions inputs SHALL reach shell steps only through environment variables, never through expression interpolation. | Script injection |
+| REQ-029 | Workflows SHALL reference secrets by fixed names, never by computed names. | A computed name passes every secret to the runner |
 
 ### 3.2 Privacy
 None. Reports restate public CI data and file names; nothing is stored or sent elsewhere.
@@ -59,7 +73,8 @@ None. Steps log only which reports they posted, and GitHub masks secrets in logs
 ### 3.6 Compatibility
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-019 | Within a major release, the shared workflow SHALL keep its file name and the secret and variable names it reads. | Callers pin a release |
+| REQ-019 | Removed. | Replaced by REQ-028: callers follow `main` instead of releases |
+| REQ-028 | The shared reports workflow SHALL keep its file name, job names and the secret and variable names it reads stable. | Callers use `@main` |
 
 ### 3.7 Operations
 | ID | Requirement | Notes |

@@ -186,7 +186,7 @@ jobs:
             echo "$3: posted"
           }
           upsert "$SQUIDBOT_TOKEN" "squidbot-tentadroids[bot]" squidbot
-          upsert "$KRABS_TOKEN" "k-r-a-b-s[bot]" krabs
+          upsert "$KRABS_TOKEN" "robo-krabs[bot]" krabs
           if [[ -n "$SPONGEBOT_TOKEN" ]]; then
             upsert "$SPONGEBOT_TOKEN" "spongebot-steelpants[bot]" spongebot
           fi

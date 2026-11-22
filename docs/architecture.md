@@ -1,16 +1,19 @@
 # Architecture
 
 ## Overview
-A repository's `ci` workflow runs a pull request's code without secrets. When it finishes, the repository's small caller workflow (`on: workflow_run`) runs from the default branch, so pull requests can't change it. It calls `bot-reports-shared.yml` here, which reads the run's results through the GitHub API, writes the reports, mints a short-lived token for each bot and posts or updates one comment per bot.
+**Bot actions:** the organization owner dispatches `bot.yml` with their gh login. It checks who ran it, validates the inputs, mints a token for the chosen bot limited to the target repo and the action's permissions, and calls one fixed GitHub REST endpoint.
+
+**Bot reports:** a repository's `ci` workflow runs a pull request's code without secrets. When it finishes, the repository's small caller workflow (`on: workflow_run`) runs from the default branch, so pull requests can't change it. It calls `bot-reports-shared.yml` here, which reads the run's results through the GitHub API, writes the reports, mints a short-lived token for each bot and posts or updates one comment per bot.
 
 ## Components
 | Component | Responsibility |
 |---|---|
 | `profile/README.md` | The organization's "Meet the team" page, and the single source of the bots' personalities |
+| `.github/workflows/bot.yml` | Owner-run bot actions: validate, mint the token, act |
 | `.github/workflows/bot-reports-shared.yml` | Gathers CI data, writes the reports, posts them as the bots |
 | Caller `.github/workflows/bot-reports.yml` (in each repo) | Triggers the shared workflow after `ci`, with the org secrets |
 | Organization secrets `<PREFIX>_PRIVATE_KEY`, variables `<PREFIX>_CLIENT_ID` | The bots' app credentials |
-| `.github/workflows/ci.yml` | Baseline checks and actionlint for this repo |
+| `.github/workflows/ci.yml` | Baseline checks and actionlint for this repo, from `nathanzm/.github` at `@main` |
 
 ## Data flow
 1. `ci` finishes on a pull request; GitHub starts the caller from the default branch.
@@ -22,12 +25,16 @@ A repository's `ci` workflow runs a pull request's code without secrets. When it
 ## Trust boundaries and threat model
 | Boundary | Untrusted input | Threats | Mitigation |
 |---|---|---|---|
+| Who can dispatch bot actions | The triggering account | Someone else using the bots' identities | Only the owner has write access, plus an actor check before any token is minted (REQ-023) |
+| Bot-actions inputs | `repo`, `number`, `comment_id`, `title`, `head`, `base`, `body` | Script injection; acting outside the org | Inputs only through env (REQ-027); repo name and number checks (REQ-024); the owner is fixed; `gh api -f` sends literal strings |
 | Pull request → trusted workflow | Job names, file names, PR author | Script injection, stealing the bot keys | No checkout or execution of PR code (REQ-010); values only through env and files (REQ-011) |
 | Report → comment | The same values, posted publicly | Pinging people, phishing links, broken markup | Cleaning and length cap (REQ-012) |
 | Bot tokens | — | Misuse beyond a comment | One repository, minimal permissions, revoked at job end (REQ-013) |
 | Workflow changes | Pull requests to callers or to this repo | A workflow that leaks secrets | Callers run only from the default branch; every merge needs the owner's approval |
 
 ## Design decisions
+- One repo for the organization's files and all bot workflows: one place for the bots' code and their only pinned action. The separate `bot-actions` repo was retired into this one.
+- Callers use shared workflows at `@main`: they're the owner's own code, and every change needs the owner's approval. Third-party actions are pinned by SHA only in the shared repos (`nathanzm/.github` for CI, this repo for the token action), so a bump happens in one place.
 - Two-stage `ci` → `workflow_run` instead of `pull_request_target`: the stage that holds secrets never sees pull request code.
 - Organization secrets instead of per-repo secrets: one place for keys, and new repos need only the caller file.
 - One comment per bot, updated in place: no comment pile-up on busy pull requests.
