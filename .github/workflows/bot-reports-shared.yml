@@ -1,0 +1,192 @@
+# Reusable workflow: scripted bot reports on pull requests (no AI).
+#
+# Each Treedome repo calls this from a small `on: workflow_run` file
+# (`.github/workflows/bot-reports.yml`) after its `ci` workflow finishes. That caller always runs from the repo's default
+# branch, so contributors can't change what runs here, and it gets the org's
+# bot secrets. Rules for this file:
+#   - never check out or run pull request code;
+#   - everything taken from the pull request or its CI run (job names, file
+#     names, logins) is untrusted: it reaches the shell only through env or
+#     files, is processed with jq, and is cleaned before it's posted;
+#   - each bot token is limited to the one repo and to pull request comments.
+#
+# Reports (one comment per bot per pull request, updated on every CI run):
+#   - SpongeBot: welcome checklist for first-time contributors;
+#   - SquidBot: the CI quality gate (each check passed or failed);
+#   - K.R.A.B.S.: runner time used and dependency files changed.
+name: bot-reports
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  report:
+    # Only finished runs have results; cancelled or waiting runs have none. Dependabot's
+    # PRs are skipped: its runs don't get Actions secrets, and its updates need no welcome.
+    if: >-
+      contains(fromJSON('["success", "failure", "timed_out"]'), github.event.workflow_run.conclusion)
+      && github.event.workflow_run.actor.login != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # One report run per commit at a time, so two finishing CI runs can't both create comments.
+    concurrency:
+      group: bot-reports-${{ github.repository }}-${{ github.event.workflow_run.head_sha }}
+      cancel-in-progress: false
+    # GITHUB_TOKEN only reads; the bots' own tokens post. The caller must grant the same.
+    permissions:
+      actions: read
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      OWNER: ${{ github.repository_owner }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Find the pull request and gather CI data
+        id: gather
+        run: |
+          set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
+          mkdir -p "$DATA"
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::unexpected head SHA"; exit 1; }
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]] || { echo "::error::unexpected run ID"; exit 1; }
+          # Fork runs don't list their pull request, so match open PRs by head SHA.
+          pr=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
+            --jq ".[] | select(.head.sha == \"$HEAD_SHA\") | .number" | head -n 1)
+          if [[ -z "$pr" ]]; then
+            echo "No open pull request for this run; nothing to report."
+            exit 0
+          fi
+          gh api "repos/$REPO/pulls/$pr" --jq .author_association > "$DATA/association"
+          gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" \
+            --jq '.jobs[] | {name, conclusion, started_at, completed_at}' | jq -s . > "$DATA/jobs.json"
+          if [[ "$(jq length "$DATA/jobs.json")" == 0 ]]; then
+            echo "The CI run has no jobs; nothing to report."
+            exit 0
+          fi
+          gh api --paginate "repos/$REPO/pulls/$pr/files?per_page=100" --jq '.[].filename' > "$DATA/files.txt"
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"
+          echo "first_time=$(grep -qxE 'FIRST_TIME_CONTRIBUTOR|FIRST_TIMER' "$DATA/association" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Write the reports
+        if: steps.gather.outputs.pr != ''
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
+          ORG_URL: ${{ github.server_url }}/${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
+          # clean: untrusted text as plain inline text. Drops characters that
+          # could start a mention, link, HTML, code span or table cell, breaks
+          # URLs so they don't autolink, and caps length.
+          clean='def clean: tostring | gsub("[`|<>@\\[\\]\\r\\n]"; " ") | gsub("://"; ": //") | .[0:100];'
+
+          jq -r --arg url "$RUN_URL" "$clean"'
+            def icon: if . == "success" then "✅" elif . == "skipped" then "⏭️" else "❌" end;
+            ([.[] | select(.conclusion != "success" and .conclusion != "skipped")] | length) as $failed
+            | "<!-- treedome-report:squidbot -->",
+              "### 🧪 SquidBot Tentadroids: quality report", "",
+              "| Check | Result |", "|---|---|",
+              (.[] | "| \(.name | clean) | \(.conclusion | icon) \(.conclusion // "none" | clean) |"),
+              "",
+              (if $failed == 0 then "*Everything passed. I suppose that is acceptable.*"
+               else "*\($failed) check(s) failed. Fix them, please, before I lose what is left of my patience.*" end),
+              "", "[CI run](\($url)) · Automated report, no AI involved."
+          ' "$DATA/jobs.json" > "$DATA/squidbot.md"
+
+          deps_re='(^|/)(requirements[^/]*\.txt|pyproject\.toml|setup\.(py|cfg)|Pipfile(\.lock)?|poetry\.lock|uv\.lock|package(-lock)?\.json|yarn\.lock|pnpm-lock\.yaml|go\.(mod|sum)|Cargo\.(toml|lock)|Gemfile(\.lock)?|composer\.(json|lock))$'
+          grep -E "$deps_re" "$DATA/files.txt" | jq -R . | jq -s . > "$DATA/deps.json" || echo '[]' > "$DATA/deps.json"
+          jq -r --arg url "$RUN_URL" --slurpfile deps "$DATA/deps.json" "$clean"'
+            def secs: (.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601);
+            [.[] | select(.started_at and .completed_at) | ((secs + 59) / 60 | floor)] as $mins
+            | ($deps[0]) as $d
+            | "<!-- treedome-report:krabs -->",
+              "### 💰 K.R.A.B.S.: cost report", "",
+              "- **Runner time:** \($mins | add // 0) min across \($mins | length) job(s), rounded up per job the way GitHub bills private repos. Public repos run free, but I counted every minute anyway.",
+              (if ($d | length) == 0 then "- **Dependency files changed:** none. Me wallet thanks ye."
+               else "- **Dependency files changed:** \($d | length). Every new dependency costs us in upkeep and risk, so it had better earn its keep:",
+                    ($d[0:20][] | "  - \(clean)") end),
+              "", "[CI run](\($url)) · Automated report, no AI involved."
+          ' "$DATA/jobs.json" > "$DATA/krabs.md"
+
+          {
+            echo "<!-- treedome-report:spongebot -->"
+            echo "### 👋 SpongeBot SteelPants: welcome aboard!"
+            echo
+            echo "Thanks for your first contribution! I'M READY to help you get it merged. A quick checklist:"
+            echo
+            echo "- Read the repository's \`AGENTS.md\` (how to build and test) and its contributing guide."
+            echo "- Sign your commits; unsigned commits can't be merged."
+            echo "- Cover your change with tests; CI checks them on every push."
+            echo
+            echo "The bots here, me included, are AI agents run by the organization owner ([meet the team]($ORG_URL)). Our automatic reports are scripted, and a human maintainer reviews and merges every change."
+          } > "$DATA/spongebot.md"
+
+      - name: Mint SquidBot's token
+        id: squidbot
+        if: steps.gather.outputs.pr != ''
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.SQUIDBOT_TENTADROIDS_CLIENT_ID }}
+          private-key: ${{ secrets.SQUIDBOT_TENTADROIDS_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-contents: read
+
+      - name: Mint K.R.A.B.S.'s token
+        id: krabs
+        if: steps.gather.outputs.pr != ''
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.KRABS_CLIENT_ID }}
+          private-key: ${{ secrets.KRABS_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-contents: read
+
+      - name: Mint SpongeBot's token
+        id: spongebot
+        if: steps.gather.outputs.first_time == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.SPONGEBOT_STEELPANTS_CLIENT_ID }}
+          private-key: ${{ secrets.SPONGEBOT_STEELPANTS_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-contents: read
+
+      - name: Post or update the reports
+        if: steps.gather.outputs.pr != ''
+        env:
+          PR: ${{ steps.gather.outputs.pr }}
+          SQUIDBOT_TOKEN: ${{ steps.squidbot.outputs.token }}
+          KRABS_TOKEN: ${{ steps.krabs.outputs.token }}
+          SPONGEBOT_TOKEN: ${{ steps.spongebot.outputs.token }}
+        run: |
+          set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
+          # upsert TOKEN LOGIN NAME: edit this bot's report comment if it exists, else create it.
+          upsert() {
+            local marker="<!-- treedome-report:$3 -->" id
+            id=$(GH_TOKEN="$1" gh api --paginate "repos/$REPO/issues/$PR/comments?per_page=100" \
+              --jq ".[] | select(.user.login == \"$2\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)
+            if [[ -n "$id" ]]; then
+              jq -n --rawfile b "$DATA/$3.md" '{body: $b}' \
+                | GH_TOKEN="$1" gh api -X PATCH "repos/$REPO/issues/comments/$id" --input - > /dev/null
+            else
+              jq -n --rawfile b "$DATA/$3.md" '{body: $b}' \
+                | GH_TOKEN="$1" gh api "repos/$REPO/issues/$PR/comments" --input - > /dev/null
+            fi
+            echo "$3: posted"
+          }
+          upsert "$SQUIDBOT_TOKEN" "squidbot-tentadroids[bot]" squidbot
+          upsert "$KRABS_TOKEN" "k-r-a-b-s[bot]" krabs
+          if [[ -n "$SPONGEBOT_TOKEN" ]]; then
+            upsert "$SPONGEBOT_TOKEN" "spongebot-steelpants[bot]" spongebot
+          fi
