@@ -16,8 +16,8 @@ on:
         options:
           - spongebot-steelpants
           - squidbot-tentadroids
-          - s-a-n-d-i
-          - k-r-a-b-s
+          - sandi-droid
+          - robo-krabs
           - pat-tron-wildcard
       action:
         description: What the bot does
@@ -112,14 +112,14 @@ jobs:
           client-id: >-
             ${{ inputs.bot == 'spongebot-steelpants' && vars.SPONGEBOT_STEELPANTS_CLIENT_ID
             || inputs.bot == 'squidbot-tentadroids' && vars.SQUIDBOT_TENTADROIDS_CLIENT_ID
-            || inputs.bot == 's-a-n-d-i' && vars.SANDI_CLIENT_ID
-            || inputs.bot == 'k-r-a-b-s' && vars.KRABS_CLIENT_ID
+            || inputs.bot == 'sandi-droid' && vars.SANDI_CLIENT_ID
+            || inputs.bot == 'robo-krabs' && vars.KRABS_CLIENT_ID
             || inputs.bot == 'pat-tron-wildcard' && vars.PATTRON_WILDCARD_CLIENT_ID || '' }}
           private-key: >-
             ${{ inputs.bot == 'spongebot-steelpants' && secrets.SPONGEBOT_STEELPANTS_PRIVATE_KEY
             || inputs.bot == 'squidbot-tentadroids' && secrets.SQUIDBOT_TENTADROIDS_PRIVATE_KEY
-            || inputs.bot == 's-a-n-d-i' && secrets.SANDI_PRIVATE_KEY
-            || inputs.bot == 'k-r-a-b-s' && secrets.KRABS_PRIVATE_KEY
+            || inputs.bot == 'sandi-droid' && secrets.SANDI_PRIVATE_KEY
+            || inputs.bot == 'robo-krabs' && secrets.KRABS_PRIVATE_KEY
             || inputs.bot == 'pat-tron-wildcard' && secrets.PATTRON_WILDCARD_PRIVATE_KEY || '' }}
           owner: Treedome-Technologies
           repositories: ${{ inputs.repo }}
@@ -136,14 +136,14 @@ jobs:
           client-id: >-
             ${{ inputs.bot == 'spongebot-steelpants' && vars.SPONGEBOT_STEELPANTS_CLIENT_ID
             || inputs.bot == 'squidbot-tentadroids' && vars.SQUIDBOT_TENTADROIDS_CLIENT_ID
-            || inputs.bot == 's-a-n-d-i' && vars.SANDI_CLIENT_ID
-            || inputs.bot == 'k-r-a-b-s' && vars.KRABS_CLIENT_ID
+            || inputs.bot == 'sandi-droid' && vars.SANDI_CLIENT_ID
+            || inputs.bot == 'robo-krabs' && vars.KRABS_CLIENT_ID
             || inputs.bot == 'pat-tron-wildcard' && vars.PATTRON_WILDCARD_CLIENT_ID || '' }}
           private-key: >-
             ${{ inputs.bot == 'spongebot-steelpants' && secrets.SPONGEBOT_STEELPANTS_PRIVATE_KEY
             || inputs.bot == 'squidbot-tentadroids' && secrets.SQUIDBOT_TENTADROIDS_PRIVATE_KEY
-            || inputs.bot == 's-a-n-d-i' && secrets.SANDI_PRIVATE_KEY
-            || inputs.bot == 'k-r-a-b-s' && secrets.KRABS_PRIVATE_KEY
+            || inputs.bot == 'sandi-droid' && secrets.SANDI_PRIVATE_KEY
+            || inputs.bot == 'robo-krabs' && secrets.KRABS_PRIVATE_KEY
             || inputs.bot == 'pat-tron-wildcard' && secrets.PATTRON_WILDCARD_PRIVATE_KEY || '' }}
           owner: Treedome-Technologies
           repositories: ${{ inputs.repo }}
