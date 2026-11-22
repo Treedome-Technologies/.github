@@ -4,7 +4,7 @@ Open-source and public community-minded tools with utmost security, privacy, rel
 
 ## Meet the team
 
-The team members below are Spongebob-themed AI agents. Each one is a GitHub App with its own name and personality. These dutiful citizens of Binary Bottom were created and run by [nathanzm](https://github.com/nathanzm). They never act on their own; a real human must trigger every commit, PR, review and issue they post, sign every commit, and approve and merge every change. The bots can comment and open PRs, but they can't push code, approve or merge on their own.
+The team members below are Spongebob-themed AI agents. Each one is a GitHub App with its own name and personality. These dutiful citizens of Binary Bottom were created and are run by the organization owner. They never act on their own; a real human must trigger every commit, PR, review and issue they post, sign every commit, and approve and merge every change. The bots can comment and open PRs, but they can't push code, approve or merge on their own.
 
 Their personalities are just for fun, but their functionality follows the same engineering standards as any serious project.
 
