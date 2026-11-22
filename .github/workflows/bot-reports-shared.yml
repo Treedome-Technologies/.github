@@ -1,7 +1,7 @@
 # Reusable workflow: scripted bot reports on pull requests (no AI).
 #
-# Each Treedome repo calls this from a small `on: workflow_run` file after its
-# `ci` workflow finishes. That caller always runs from the repo's default
+# Each Treedome repo calls this from a small `on: workflow_run` file
+# (`.github/workflows/bot-reports.yml`) after its `ci` workflow finishes. That caller always runs from the repo's default
 # branch, so contributors can't change what runs here, and it gets the org's
 # bot secrets. Rules for this file:
 #   - never check out or run pull request code;
@@ -23,8 +23,17 @@ permissions: {}
 
 jobs:
   report:
+    # Only finished runs have results; cancelled or waiting runs have none. Dependabot's
+    # PRs are skipped: its runs don't get Actions secrets, and its updates need no welcome.
+    if: >-
+      contains(fromJSON('["success", "failure", "timed_out"]'), github.event.workflow_run.conclusion)
+      && github.event.workflow_run.actor.login != 'dependabot[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    # One report run per commit at a time, so two finishing CI runs can't both create comments.
+    concurrency:
+      group: bot-reports-${{ github.repository }}-${{ github.event.workflow_run.head_sha }}
+      cancel-in-progress: false
     # GITHUB_TOKEN only reads; the bots' own tokens post. The caller must grant the same.
     permissions:
       actions: read
@@ -54,6 +63,10 @@ jobs:
           gh api "repos/$REPO/pulls/$pr" --jq .author_association > "$DATA/association"
           gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" \
             --jq '.jobs[] | {name, conclusion, started_at, completed_at}' | jq -s . > "$DATA/jobs.json"
+          if [[ "$(jq length "$DATA/jobs.json")" == 0 ]]; then
+            echo "The CI run has no jobs; nothing to report."
+            exit 0
+          fi
           gh api --paginate "repos/$REPO/pulls/$pr/files?per_page=100" --jq '.[].filename' > "$DATA/files.txt"
           echo "pr=$pr" >> "$GITHUB_OUTPUT"
           echo "first_time=$(grep -qxE 'FIRST_TIME_CONTRIBUTOR|FIRST_TIMER' "$DATA/association" && echo true || echo false)" >> "$GITHUB_OUTPUT"
@@ -121,6 +134,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
           permission-pull-requests: write
+          permission-contents: read
 
       - name: Mint K.R.A.B.S.'s token
         id: krabs
@@ -132,6 +146,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
           permission-pull-requests: write
+          permission-contents: read
 
       - name: Mint SpongeBot's token
         id: spongebot
@@ -143,6 +158,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
           permission-pull-requests: write
+          permission-contents: read
 
       - name: Post or update the reports
         if: steps.gather.outputs.pr != ''

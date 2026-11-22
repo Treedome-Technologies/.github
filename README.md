@@ -6,7 +6,7 @@ CI here runs the baseline checks from [`nathanzm/.github`](https://github.com/na
 
 ## Bot reports
 
-[`bot-reports.yml`](.github/workflows/bot-reports.yml) posts the bots' scripted reports on pull requests: SpongeBot welcomes first-time contributors, SquidBot reports the CI checks, and K.R.A.B.S. reports runner time and dependency changes. No AI runs; the reports are plain scripts. Each repo turns them on with this file, `.github/workflows/bot-reports.yml`, pinned to a commit of this repo:
+[`bot-reports-shared.yml`](.github/workflows/bot-reports-shared.yml) posts the bots' scripted reports on pull requests: SpongeBot welcomes first-time contributors, SquidBot reports the CI checks, and K.R.A.B.S. reports runner time and dependency changes. No AI runs; the reports are plain scripts. Each repo turns them on with this file, `.github/workflows/bot-reports.yml`, pinned to a release of this repo:
 
 ```yaml
 # Bot reports: the Treedome bots' scripted reports on pull requests, after ci finishes.
@@ -25,8 +25,10 @@ jobs:
     permissions:
       actions: read
       pull-requests: read
-    uses: Treedome-Technologies/.github/.github/workflows/bot-reports.yml@<commit-sha> # main
+    uses: Treedome-Technologies/.github/.github/workflows/bot-reports-shared.yml@<commit-sha> # v1.0.0
     secrets: inherit
 ```
 
 It runs from the repo's default branch after `ci` finishes, never from a pull request's own code, so the bots' keys (organization secrets) stay out of contributors' reach.
+
+Releases are semver tags (`vX.Y.Z`); callers pin the tag's commit SHA, and Dependabot proposes updates from the tags.
