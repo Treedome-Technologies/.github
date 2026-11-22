@@ -1,0 +1,153 @@
+# Bot actions: one bot does one GitHub action on one Treedome repo, under the
+# bot's own name (REQ-021). Only the organization owner can run it (REQ-023).
+# The bot's token is limited to the target repo and the action's permissions
+# (REQ-025). All text reaches the shell through env, never through ${{ }} (REQ-027).
+name: bot
+
+run-name: ${{ inputs.bot }} ${{ inputs.action }} ${{ inputs.repo }} ${{ inputs.number }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      bot:
+        description: Bot app slug
+        type: choice
+        required: true
+        options:
+          - spongebot-steelpants
+          - squidbot-tentadroids
+          - s-a-n-d-i
+          - k-r-a-b-s
+          - pat-tron-wildcard
+      action:
+        description: What the bot does
+        type: choice
+        required: true
+        options:
+          - open-pr
+          - review
+          - comment
+          - reply
+          - issue
+      repo:
+        description: Target repo name in Treedome-Technologies
+        type: string
+        required: true
+      number:
+        description: PR number (review, comment, reply)
+        type: string
+      comment_id:
+        description: Review comment ID to reply to (reply)
+        type: string
+      title:
+        description: Title (open-pr, issue)
+        type: string
+      head:
+        description: Branch to merge (open-pr)
+        type: string
+      base:
+        description: Branch to merge into (open-pr)
+        type: string
+        default: main
+      body:
+        description: Text (required for review, comment, reply)
+        type: string
+
+permissions: {}
+
+jobs:
+  act:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      OWNER: Treedome-Technologies
+      BOT: ${{ inputs.bot }}
+      ACTION: ${{ inputs.action }}
+      REPO: ${{ inputs.repo }}
+      NUMBER: ${{ inputs.number }}
+      COMMENT_ID: ${{ inputs.comment_id }}
+      TITLE: ${{ inputs.title }}
+      HEAD: ${{ inputs.head }}
+      BASE: ${{ inputs.base }}
+      BODY: ${{ inputs.body }}
+    steps:
+      - name: Check who ran it and validate inputs
+        id: check
+        env:
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          # The organization owner's login, checked literally: it's the trust anchor.
+          [[ "$ACTOR" == nathanzm && "$TRIGGERING_ACTOR" == nathanzm ]] \
+            || fail "only the organization owner may run bot actions"
+          # Repo names may start with a dot (.github); "." and ".." aren't repos.
+          [[ "$REPO" =~ ^[A-Za-z0-9._-]{1,100}$ && "$REPO" != . && "$REPO" != .. ]] \
+            || fail "invalid repo name"
+          number_re='^[1-9][0-9]{0,9}$'
+          id_re='^[1-9][0-9]{0,18}$'
+          case "$ACTION" in
+            open-pr)
+              [[ -n "$TITLE" && -n "$HEAD" && -n "$BASE" ]] || fail "open-pr needs title, head and base" ;;
+            review|comment)
+              [[ "$NUMBER" =~ $number_re ]] || fail "invalid PR number"
+              [[ -n "$BODY" ]] || fail "$ACTION needs a body" ;;
+            reply)
+              [[ "$NUMBER" =~ $number_re && "$COMMENT_ID" =~ $id_re ]] \
+                || fail "reply needs a valid PR number and comment_id"
+              [[ -n "$BODY" ]] || fail "reply needs a body" ;;
+            issue)
+              [[ -n "$TITLE" ]] || fail "issue needs a title" ;;
+          esac
+          # Name prefix of the bot's secret <PREFIX>_PRIVATE_KEY and variable <PREFIX>_CLIENT_ID.
+          case "$BOT" in
+            spongebot-steelpants) prefix=SPONGEBOT_STEELPANTS ;;
+            squidbot-tentadroids) prefix=SQUIDBOT_TENTADROIDS ;;
+            s-a-n-d-i)            prefix=SANDI ;;
+            k-r-a-b-s)            prefix=KRABS ;;
+            pat-tron-wildcard)    prefix=PATTRON_WILDCARD ;;
+            *) fail "unknown bot" ;;
+          esac
+          echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
+
+      # Two mint steps so each token carries only the permissions its action needs.
+      - name: Mint token (pull requests)
+        id: pr-token
+        if: inputs.action != 'issue'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars[format('{0}_CLIENT_ID', steps.check.outputs.prefix)] }}
+          private-key: ${{ secrets[format('{0}_PRIVATE_KEY', steps.check.outputs.prefix)] }}
+          owner: Treedome-Technologies
+          repositories: ${{ inputs.repo }}
+          permission-pull-requests: write
+          permission-contents: read
+
+      - name: Mint token (issues)
+        id: issue-token
+        if: inputs.action == 'issue'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars[format('{0}_CLIENT_ID', steps.check.outputs.prefix)] }}
+          private-key: ${{ secrets[format('{0}_PRIVATE_KEY', steps.check.outputs.prefix)] }}
+          owner: Treedome-Technologies
+          repositories: ${{ inputs.repo }}
+          permission-issues: write
+
+      # Fixed endpoints only; reviews are always COMMENT, never APPROVE (REQ-026).
+      # gh api -f sends values as literal strings (no @file expansion).
+      - name: Act
+        env:
+          GH_TOKEN: ${{ steps.pr-token.outputs.token || steps.issue-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          api="repos/$OWNER/$REPO"
+          case "$ACTION" in
+            open-pr) url=$(gh api "$api/pulls" -f "title=$TITLE" -f "head=$HEAD" -f "base=$BASE" -f "body=$BODY" --jq .html_url) ;;
+            review)  url=$(gh api "$api/pulls/$NUMBER/reviews" -f event=COMMENT -f "body=$BODY" --jq .html_url) ;;
+            comment) url=$(gh api "$api/issues/$NUMBER/comments" -f "body=$BODY" --jq .html_url) ;;
+            reply)   url=$(gh api "$api/pulls/$NUMBER/comments/$COMMENT_ID/replies" -f "body=$BODY" --jq .html_url) ;;
+            issue)   url=$(gh api "$api/issues" -f "title=$TITLE" -f "body=$BODY" --jq .html_url) ;;
+          esac
+          echo "$BOT $ACTION: $url" | tee -a "$GITHUB_STEP_SUMMARY"
