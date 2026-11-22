@@ -2,6 +2,8 @@
 
 Organization-level files for Treedome Technologies. [`profile/README.md`](profile/README.md) is the "Meet the team" page shown on the [organization's overview](https://github.com/Treedome-Technologies).
 
+Design docs: [requirements](docs/requirements.md), [architecture](docs/architecture.md) and [test plan](docs/test-plan.md).
+
 CI here runs the baseline checks from [`nathanzm/.github`](https://github.com/nathanzm/.github), which holds the shared workflows for these repos, plus actionlint.
 
 ## Bot reports
