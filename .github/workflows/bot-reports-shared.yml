@@ -44,12 +44,12 @@ jobs:
       OWNER: ${{ github.repository_owner }}
       RUN_ID: ${{ github.event.workflow_run.id }}
       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-      DATA: ${{ runner.temp }}/bot-reports
     steps:
       - name: Find the pull request and gather CI data
         id: gather
         run: |
           set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
           mkdir -p "$DATA"
           [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::unexpected head SHA"; exit 1; }
           [[ "$RUN_ID" =~ ^[0-9]+$ ]] || { echo "::error::unexpected run ID"; exit 1; }
@@ -78,6 +78,7 @@ jobs:
           ORG_URL: ${{ github.server_url }}/${{ github.repository_owner }}
         run: |
           set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
           # clean: untrusted text as plain inline text. Drops characters that
           # could start a mention, link, HTML, code span or table cell, breaks
           # URLs so they don't autolink, and caps length.
@@ -169,6 +170,7 @@ jobs:
           SPONGEBOT_TOKEN: ${{ steps.spongebot.outputs.token }}
         run: |
           set -euo pipefail
+          DATA="$RUNNER_TEMP/bot-reports"
           # upsert TOKEN LOGIN NAME: edit this bot's report comment if it exists, else create it.
           upsert() {
             local marker="<!-- treedome-report:$3 -->" id
