@@ -21,6 +21,8 @@ Sections match [requirements.md](requirements.md).
 | REQ-007 | Review: the job's `if:` allows only success, failure and timed_out | Review |
 | REQ-008 | Review: the job's `if:` excludes `dependabot[bot]` | Review |
 | REQ-009 | Push to a branch with no open PR: the run finds none and posts nothing | Integration |
+| REQ-021 | Dispatch each action on scratch: the item appears under the bot's name | Integration |
+| REQ-022 | The same runs: the summary shows each item's URL | Integration |
 
 ### 3. Non-functional requirements
 | Requirement | Test | Kind |
@@ -34,5 +36,11 @@ Sections match [requirements.md](requirements.md).
 | REQ-016 | Review: every `uses:` pins a full SHA | Review |
 | REQ-017 | Test PR: a failing report run leaves the `ci` result unchanged | Integration |
 | REQ-018 | Review: `timeout-minutes: 5` | Review |
-| REQ-019 | Review at each release: file and secret names unchanged within the major version | Review |
+| REQ-019 | Removed | |
+| REQ-023 | Review: the actor check runs before any mint step (a negative run needs a second account) | Review |
+| REQ-024 | Dispatch with `repo=../x`, and a `review` with `number=abc`: each run fails before minting | Integration |
+| REQ-025 | Review: each mint step sets `repositories` to the target repo and only that action's permissions | Review |
+| REQ-026 | Review: `event=COMMENT` is the only event sent to the reviews endpoint | Review |
+| REQ-027 | actionlint's expression-injection check in CI | Static |
+| REQ-028 | Review of every change: file, job, secret and variable names unchanged | Review |
 | REQ-020 | Adding the caller file to scratch is the only setup the tests need | Integration |
