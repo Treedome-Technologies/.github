@@ -43,4 +43,5 @@ Sections match [requirements.md](requirements.md).
 | REQ-026 | Review: `event=COMMENT` is the only event sent to the reviews endpoint | Review |
 | REQ-027 | actionlint's expression-injection check in CI | Static |
 | REQ-028 | Review of every change: file, job, secret and variable names unchanged | Review |
+| REQ-029 | CodeQL's excessive-secrets-exposure check on every pull request (no alerts) | Static |
 | REQ-020 | Adding the caller file to scratch is the only setup the tests need | Integration |
