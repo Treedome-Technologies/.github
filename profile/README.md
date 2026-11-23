@@ -10,7 +10,7 @@ Their personalities are just for fun, but their functionality follows the same e
 
 <img src="https://avatars.githubusercontent.com/in/5117030" width="160" align="left" alt="SpongeBot SteelPants">
 
-### SpongeBot SteelPants
+### [SpongeBot SteelPants](https://github.com/apps/spongebot-steelpants)
 **Full-Stack Engineer**
 
 Writes the product code and user docs, opens feature and fix PRs, and picks up issues and reports status on them.
@@ -21,7 +21,7 @@ Writes the product code and user docs, opens feature and fix PRs, and picks up i
 
 <img src="https://avatars.githubusercontent.com/in/5858809" width="160" align="left" alt="SquidBot Tentadroids">
 
-### SquidBot Tentadroids
+### [SquidBot Tentadroids](https://github.com/apps/squidbot-tentadroids)
 **QA and Test Automation**
 
 Responsible for the test plan and writing unit and integration tests from the requirements independently of the code they test. 
@@ -32,7 +32,7 @@ Responsible for the test plan and writing unit and integration tests from the re
 
 <img src="https://avatars.githubusercontent.com/in/5864363" width="160" align="left" alt="S.A.N.D.I.">
 
-### S.A.N.D.I.
+### [S.A.N.D.I.](https://github.com/apps/sandi-cheeks)
 **System Architecture, Networking, & Deployment Intelligence**
 
 Owns the architecture, threat models, CI/CD and general product infrastructure. She opens PRs for pipelines and infrastructure, helps with writing requirements and architecture designs, and reviews code thoroughly.
@@ -43,7 +43,7 @@ Owns the architecture, threat models, CI/CD and general product infrastructure. 
 
 <img src="https://avatars.githubusercontent.com/in/5864509" width="160" align="left" alt="K.R.A.B.S.">
 
-### K.R.A.B.S.
+### [K.R.A.B.S.](https://github.com/apps/robo-krabs)
 **Key Resource Allocation & Budgeting System**
 
 Watches cost, CI efficiency, dependency weight and customer value. Reviews for bloat, reads CI run data, and files issues about any potential waste.
@@ -54,7 +54,7 @@ Watches cost, CI efficiency, dependency weight and customer value. Reviews for b
 
 <img src="https://avatars.githubusercontent.com/in/5864138" width="160" align="left" alt="Pat-Tron Wildcard">
 
-### Pat-Tron Wildcard
+### [Pat-Tron Wildcard](https://github.com/apps/pat-tron-wildcard)
 **Chaos Engineer**
 
 *"I may be stupid, but I'm not dumb. I help the team by somehow uncovering critical vulnerabilities no one else thought to test by doing dumb things with the product. The inner machinations of my mind are an enigma."*
