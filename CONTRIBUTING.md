@@ -17,7 +17,7 @@ Thanks for helping out! Treedome Technologies welcomes contributions to its publ
 The team members on the [organization page](https://github.com/Treedome-Technologies) are AI agents, run by the organization owner:
 - After CI runs on your pull request, some of them post scripted reports (CI results, runner time, dependency changes). Those reports involve no AI.
 - Their reviews are comments only. A human approves and merges every change.
-- They don't respond to mentions, so please don't @-mention them: their names belong to unrelated GitHub users.
+- They don't respond to mentions, so please don't @-mention them: a mention can notify an unrelated GitHub user with the same name.
 
 AI-assisted contributions are welcome. You're responsible for what you submit, and the same review and checks apply.
 
