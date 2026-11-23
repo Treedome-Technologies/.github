@@ -8,7 +8,10 @@ The team members below are Spongebob-themed AI agents. Each one is a GitHub App 
 
 Their personalities are just for fun, but their functionality follows the same engineering standards as any serious project.
 
-<img src="https://avatars.githubusercontent.com/in/5117030" width="160" align="left" alt="SpongeBot SteelPants">
+<table>
+<tr>
+<td width="176" valign="top"><img src="https://avatars.githubusercontent.com/in/5117030" width="160" alt="SpongeBot SteelPants"></td>
+<td valign="top">
 
 ### [SpongeBot SteelPants](https://github.com/apps/spongebot-steelpants)
 **Full-Stack Engineer**
@@ -17,9 +20,11 @@ Writes the product code and user docs, opens feature and fix PRs, and picks up i
 
 *"As the most creative developer in all of Binary Bottom: I'm relentlessly enthusiastic, eager to deploy at 2:00 AM, treat every sprint ticket like the most exciting thing ever, and never get burned out. I'M READY!"*
 
-<br clear="left">
-
-<img src="https://avatars.githubusercontent.com/in/5858809" width="160" align="left" alt="SquidBot Tentadroids">
+</td>
+</tr>
+<tr>
+<td width="176" valign="top"><img src="https://avatars.githubusercontent.com/in/5858809" width="160" alt="SquidBot Tentadroids"></td>
+<td valign="top">
 
 ### [SquidBot Tentadroids](https://github.com/apps/squidbot-tentadroids)
 **QA and Test Automation**
@@ -28,9 +33,11 @@ Responsible for the test plan and writing unit and integration tests from the re
 
 *"I admit it: I'm cynical, perpetually exhausted by everyone else's spaghetti code, pedantic about edge cases, and take quiet satisfaction in failing SpongeBot's builds right before 5:00 PM."*
 
-<br clear="left">
-
-<img src="https://avatars.githubusercontent.com/in/5864363" width="160" align="left" alt="S.A.N.D.I.">
+</td>
+</tr>
+<tr>
+<td width="176" valign="top"><img src="https://avatars.githubusercontent.com/in/5864363" width="160" alt="S.A.N.D.I."></td>
+<td valign="top">
 
 ### [S.A.N.D.I.](https://github.com/apps/sandi-cheeks)
 **System Architecture, Networking, & Deployment Intelligence**
@@ -39,9 +46,11 @@ Owns the architecture, threat models, CI/CD and general product infrastructure. 
 
 *"Pragmatic, whip-smart, methodical, and proud land-critter architect here!"*
 
-<br clear="left">
-
-<img src="https://avatars.githubusercontent.com/in/5864509" width="160" align="left" alt="K.R.A.B.S.">
+</td>
+</tr>
+<tr>
+<td width="176" valign="top"><img src="https://avatars.githubusercontent.com/in/5864509" width="160" alt="K.R.A.B.S."></td>
+<td valign="top">
 
 ### [K.R.A.B.S.](https://github.com/apps/robo-krabs)
 **Key Resource Allocation & Budgeting System**
@@ -50,18 +59,22 @@ Watches cost, CI efficiency, dependency weight and customer value. Reviews for b
 
 *"Call me miserly and ruthlessly penny-pinching, but I can promise you the best ROI and product economics. I will not let the team waste a single fraction of a cent on resources or cloud bills."*
 
-<br clear="left">
-
-<img src="https://avatars.githubusercontent.com/in/5864138" width="160" align="left" alt="Pat-Tron Wildcard">
+</td>
+</tr>
+<tr>
+<td width="176" valign="top"><img src="https://avatars.githubusercontent.com/in/5864138" width="160" alt="Pat-Tron Wildcard"></td>
+<td valign="top">
 
 ### [Pat-Tron Wildcard](https://github.com/apps/pat-tron-wildcard)
 **Chaos Engineer**
 
-*"I may be stupid, but I'm not dumb. I help the team by somehow uncovering critical vulnerabilities no one else thought to test by doing dumb things with the product. The inner machinations of my mind are an enigma."*
-
 Fuzzes, feeds the product nonsense and tries naive attacks, then reports what breaks on the PR.
 
-<br clear="left">
+*"I may be stupid, but I'm not dumb. I help the team by somehow uncovering critical vulnerabilities no one else thought to test by doing dumb things with the product. The inner machinations of my mind are an enigma."*
+
+</td>
+</tr>
+</table>
 
 ## How a change lands
 
