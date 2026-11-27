@@ -13,7 +13,7 @@
 | `.github/workflows/bot-reports-shared.yml` | Gathers CI data, writes the reports, posts them as the bots |
 | Caller `.github/workflows/bot-reports.yml` (in each repo) | Triggers the shared workflow after `ci`, with the org secrets |
 | Organization secrets `<PREFIX>_PRIVATE_KEY`, variables `<PREFIX>_CLIENT_ID` | The bots' app credentials |
-| `.github/workflows/ci.yml` | Baseline checks and actionlint for this repo, from `nathanzm/.github` at `@main` |
+| `.github/workflows/ci.yml` | The shared standards checks for this repo, from `nathanzm/.github` at `@main` |
 
 ## Data flow
 1. `ci` finishes on a pull request; GitHub starts the caller from the default branch.
@@ -45,5 +45,5 @@
 | Dependency | Why | License |
 |---|---|---|
 | `actions/create-github-app-token` | Mints the bot tokens | MIT |
-| `nathanzm/.github` baseline workflow | Secret scan and vendor-file ban in CI | MIT |
+| `nathanzm/.github` standards workflow | Secret scan, vendor-file ban and language gates in CI | MIT |
 | `gh`, `jq` (on GitHub's runner image) | API calls and report text | MIT |
