@@ -7,7 +7,7 @@ Organization-level files and the bots' workflows for Treedome Technologies.
 - **Bot reports** ([`bot-reports-shared.yml`](.github/workflows/bot-reports-shared.yml)): scripted reports on contributors' pull requests.
 - Design docs: [requirements](docs/requirements.md), [architecture](docs/architecture.md) and [test plan](docs/test-plan.md).
 
-CI runs the baseline checks and actionlint from [`nathanzm/.github`](https://github.com/nathanzm/.github) at `@main`. The only pinned action here is GitHub's token action, which Dependabot keeps current; no other Treedome repo pins anything.
+CI runs the shared standards workflow (secret scan, vendor-file ban, dependency review, actionlint, and a gate for each language found) from [`nathanzm/.github`](https://github.com/nathanzm/.github) at `@main`. The only pinned action here is GitHub's token action, which Dependabot keeps current; no other Treedome repo pins anything.
 
 ## Bot actions
 

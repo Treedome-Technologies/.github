@@ -13,7 +13,7 @@
 | `.github/workflows/bot-reports-shared.yml` | Gathers CI data, writes the reports, posts them as the bots |
 | Caller `.github/workflows/bot-reports.yml` (in each repo) | Triggers the shared workflow after `ci`, with the org secrets |
 | Organization secrets `<PREFIX>_PRIVATE_KEY`, variables `<PREFIX>_CLIENT_ID` | The bots' app credentials |
-| `.github/workflows/ci.yml` | Baseline checks and actionlint for this repo, from `nathanzm/.github` at `@main` |
+| `.github/workflows/ci.yml` | The shared standards checks for this repo, from `nathanzm/.github` at `@main` |
 
 ## Data flow
 1. `ci` finishes on a pull request; GitHub starts the caller from the default branch.
@@ -25,11 +25,11 @@
 ## Trust boundaries and threat model
 | Boundary | Untrusted input | Threats | Mitigation |
 |---|---|---|---|
-| Who can dispatch bot actions | The triggering account | Someone else using the bots' identities | Only the owner has write access, plus an actor check before any token is minted (REQ-023) |
-| Bot-actions inputs | `repo`, `number`, `comment_id`, `title`, `head`, `base`, `body` | Script injection; acting outside the org | Inputs only through env (REQ-027); repo name and number checks (REQ-024); the owner is fixed; `gh api -f` sends literal strings |
-| Pull request → trusted workflow | Job names, file names, PR author | Script injection, stealing the bot keys | No checkout or execution of PR code (REQ-010); values only through env and files (REQ-011) |
-| Report → comment | The same values, posted publicly | Pinging people, phishing links, broken markup | Cleaning and length cap (REQ-012) |
-| Bot tokens | — | Misuse beyond a comment | One repository, minimal permissions, revoked at job end (REQ-013) |
+| Who can dispatch bot actions | The triggering account | Someone else using the bots' identities | Only the owner has write access, plus an actor check before any token is minted (REQ-019) |
+| Bot-actions inputs | `repo`, `number`, `comment_id`, `title`, `head`, `base`, `body` | Script injection; acting outside the org | Inputs only through env (REQ-023); repo name and number checks (REQ-020); the owner is fixed; `gh api -f` sends literal strings |
+| Pull request → trusted workflow | Job names, file names, PR author | Script injection, stealing the bot keys | No checkout or execution of PR code (REQ-012); values only through env and files (REQ-013) |
+| Report → comment | The same values, posted publicly | Pinging people, phishing links, broken markup | Cleaning and length cap (REQ-014) |
+| Bot tokens | — | Misuse beyond a comment | One repository, minimal permissions, revoked at job end (REQ-015) |
 | Workflow changes | Pull requests to callers or to this repo | A workflow that leaks secrets | Callers run only from the default branch; every merge needs the owner's approval |
 
 ## Design decisions
@@ -45,5 +45,5 @@
 | Dependency | Why | License |
 |---|---|---|
 | `actions/create-github-app-token` | Mints the bot tokens | MIT |
-| `nathanzm/.github` baseline workflow | Secret scan and vendor-file ban in CI | MIT |
+| `nathanzm/.github` standards workflow | Secret scan, vendor-file ban and language gates in CI | MIT |
 | `gh`, `jq` (on GitHub's runner image) | API calls and report text | MIT |
