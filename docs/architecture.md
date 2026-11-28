@@ -25,11 +25,11 @@
 ## Trust boundaries and threat model
 | Boundary | Untrusted input | Threats | Mitigation |
 |---|---|---|---|
-| Who can dispatch bot actions | The triggering account | Someone else using the bots' identities | Only the owner has write access, plus an actor check before any token is minted (REQ-023) |
-| Bot-actions inputs | `repo`, `number`, `comment_id`, `title`, `head`, `base`, `body` | Script injection; acting outside the org | Inputs only through env (REQ-027); repo name and number checks (REQ-024); the owner is fixed; `gh api -f` sends literal strings |
-| Pull request → trusted workflow | Job names, file names, PR author | Script injection, stealing the bot keys | No checkout or execution of PR code (REQ-010); values only through env and files (REQ-011) |
-| Report → comment | The same values, posted publicly | Pinging people, phishing links, broken markup | Cleaning and length cap (REQ-012) |
-| Bot tokens | — | Misuse beyond a comment | One repository, minimal permissions, revoked at job end (REQ-013) |
+| Who can dispatch bot actions | The triggering account | Someone else using the bots' identities | Only the owner has write access, plus an actor check before any token is minted (REQ-019) |
+| Bot-actions inputs | `repo`, `number`, `comment_id`, `title`, `head`, `base`, `body` | Script injection; acting outside the org | Inputs only through env (REQ-023); repo name and number checks (REQ-020); the owner is fixed; `gh api -f` sends literal strings |
+| Pull request → trusted workflow | Job names, file names, PR author | Script injection, stealing the bot keys | No checkout or execution of PR code (REQ-012); values only through env and files (REQ-013) |
+| Report → comment | The same values, posted publicly | Pinging people, phishing links, broken markup | Cleaning and length cap (REQ-014) |
+| Bot tokens | — | Misuse beyond a comment | One repository, minimal permissions, revoked at job end (REQ-015) |
 | Workflow changes | Pull requests to callers or to this repo | A workflow that leaks secrets | Callers run only from the default branch; every merge needs the owner's approval |
 
 ## Design decisions

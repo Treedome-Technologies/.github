@@ -2,7 +2,7 @@
 
 Keywords: **SHALL** (mandatory), **SHALL NOT** (prohibited), **SHOULD** / **SHOULD NOT** (recommended / discouraged), and **MAY** (optional), as in RFC 2119 and RFC 8174. They're normative only in uppercase; text without one is context, not a requirement.
 
-Each row holds one requirement with one keyword, so it can be tested on its own. IDs are permanent: never reuse or renumber them, and mark a dropped requirement "Removed" instead of deleting its row.
+Each row holds one requirement with one keyword, so it can be tested on its own. IDs run in reading order. Until the first release, renumber them to keep that order and update every citation; from the first release on they're permanent: never reuse or renumber them, and mark a dropped requirement "Removed" instead of deleting its row.
 
 ## 1. Scope
 - **Purpose:** organization-level files and bot workflows for Treedome Technologies: the "Meet the team" profile, the owner-run bot actions, and a shared workflow that posts the bots' scripted reports on pull requests.
@@ -31,8 +31,8 @@ Each row holds one requirement with one keyword, so it can be tested on its own.
 
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-021 | A bot-actions run SHALL create the requested pull request, review, comment, reply or issue under the chosen bot's name. | |
-| REQ-022 | A bot-actions run's summary SHALL show the URL of what it created. | |
+| REQ-010 | A bot-actions run SHALL create the requested pull request, review, comment, reply or issue under the chosen bot's name. | |
+| REQ-011 | A bot-actions run's summary SHALL show the URL of what it created. | |
 
 ## 3. Non-functional requirements
 Every subsection below is always present. One with nothing to require says "None." and why.
@@ -40,19 +40,19 @@ Every subsection below is always present. One with nothing to require says "None
 ### 3.1 Security
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-010 | The workflow SHALL NOT check out or run pull request code. | |
-| REQ-011 | Text from the pull request or its CI run SHALL reach shell steps only through environment variables or files, never through expression interpolation. | Script injection |
-| REQ-012 | Posted text from the pull request or its CI run SHALL have mention, link, HTML, code-span and table characters removed, URLs broken, and length capped. | |
-| REQ-013 | Each bot token SHALL be limited to the one repository and to pull request write and contents read permissions. | |
-| REQ-014 | The workflow's own `GITHUB_TOKEN` SHALL have read-only access to Actions and pull requests only. | |
-| REQ-015 | The workflow SHALL NOT run AI or use any AI credential. | |
-| REQ-016 | Third-party actions SHALL be pinned to a full commit SHA. | |
-| REQ-023 | A bot-actions run SHALL fail before minting any token unless both its actor and its triggering actor are the organization owner. | |
-| REQ-024 | A bot-actions run SHALL fail before minting any token if the target repo name is malformed, or if the inputs its action needs are missing or not numeric where a number is required. | |
-| REQ-025 | A bot-actions token SHALL be limited to the target repository and to the permissions its action needs. | |
-| REQ-026 | Bot-actions reviews SHALL always use the COMMENT event. | No approvals or change requests |
-| REQ-027 | Bot-actions inputs SHALL reach shell steps only through environment variables, never through expression interpolation. | Script injection |
-| REQ-029 | Workflows SHALL reference secrets by fixed names, never by computed names. | A computed name passes every secret to the runner |
+| REQ-012 | The workflow SHALL NOT check out or run pull request code. | |
+| REQ-013 | Text from the pull request or its CI run SHALL reach shell steps only through environment variables or files, never through expression interpolation. | Script injection |
+| REQ-014 | Posted text from the pull request or its CI run SHALL have mention, link, HTML, code-span and table characters removed, URLs broken, and length capped. | |
+| REQ-015 | Each bot token SHALL be limited to the one repository and to pull request write and contents read permissions. | |
+| REQ-016 | The workflow's own `GITHUB_TOKEN` SHALL have read-only access to Actions and pull requests only. | |
+| REQ-017 | The workflow SHALL NOT run AI or use any AI credential. | |
+| REQ-018 | Third-party actions SHALL be pinned to a full commit SHA. | |
+| REQ-019 | A bot-actions run SHALL fail before minting any token unless both its actor and its triggering actor are the organization owner. | |
+| REQ-020 | A bot-actions run SHALL fail before minting any token if the target repo name is malformed, or if the inputs its action needs are missing or not numeric where a number is required. | |
+| REQ-021 | A bot-actions token SHALL be limited to the target repository and to the permissions its action needs. | |
+| REQ-022 | Bot-actions reviews SHALL always use the COMMENT event. | No approvals or change requests |
+| REQ-023 | Bot-actions inputs SHALL reach shell steps only through environment variables, never through expression interpolation. | Script injection |
+| REQ-024 | Workflows SHALL reference secrets by fixed names, never by computed names. | A computed name passes every secret to the runner |
 
 ### 3.2 Privacy
 None. Reports restate public CI data and file names; nothing is stored or sent elsewhere.
@@ -63,20 +63,20 @@ None. Steps log only which reports they posted, and GitHub masks secrets in logs
 ### 3.4 Reliability
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-017 | A failed report SHALL NOT change the result of the repository's `ci` run. | Reports run as a separate workflow |
+| REQ-025 | A failed report SHALL NOT change the result of the repository's `ci` run. | Reports run as a separate workflow |
 
 ### 3.5 Performance
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-018 | A report run SHALL time out after 5 minutes. | |
+| REQ-026 | A report run SHALL time out after 5 minutes. | |
 
 ### 3.6 Compatibility
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-019 | Removed. | Replaced by REQ-028: callers follow `main` instead of releases |
+| REQ-027 | Removed. | Replaced by REQ-028: callers follow `main` instead of releases |
 | REQ-028 | The shared reports workflow SHALL keep its file name, job names and the secret and variable names it reads stable. | Callers use `@main` |
 
 ### 3.7 Operations
 | ID | Requirement | Notes |
 |---|---|---|
-| REQ-020 | A repository SHALL be able to turn reports on by adding one caller file, with no other setup. | Org secrets reach all repos |
+| REQ-029 | A repository SHALL be able to turn reports on by adding one caller file, with no other setup. | Org secrets reach all repos |

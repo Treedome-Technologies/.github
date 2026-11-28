@@ -1,7 +1,7 @@
 # Bot actions: one bot does one GitHub action on one Treedome repo, under the
-# bot's own name (REQ-021). Only the organization owner can run it (REQ-023).
+# bot's own name (REQ-010). Only the organization owner can run it (REQ-019).
 # The bot's token is limited to the target repo and the action's permissions
-# (REQ-025). All text reaches the shell through env, never through ${{ }} (REQ-027).
+# (REQ-021). All text reaches the shell through env, never through ${{ }} (REQ-023).
 name: bot
 
 run-name: ${{ inputs.bot }} ${{ inputs.action }} ${{ inputs.repo }} ${{ inputs.number }}
@@ -149,7 +149,7 @@ jobs:
           repositories: ${{ inputs.repo }}
           permission-issues: write
 
-      # Fixed endpoints only; reviews are always COMMENT, never APPROVE (REQ-026).
+      # Fixed endpoints only; reviews are always COMMENT, never APPROVE (REQ-022).
       # gh api -f sends values as literal strings (no @file expansion).
       - name: Act
         env:
